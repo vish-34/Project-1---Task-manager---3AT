@@ -24,15 +24,17 @@ public class TaskController : ControllerBase
 }
 
     [HttpGet]
-    public IActionResult GetTask()
+    public IActionResult GetTask([FromQuery] DateTime date)
     {
-        return Ok(_service.GetTasks(GetUserId()));
+        var task = _service.GetTasks(GetUserId(), date);
+        return Ok(task);
     }
 
     [HttpPost]
     public IActionResult AddTask(TaskDto dto)
     {
-        return Ok(_service.AddTask(dto.Title, GetUserId()));
+        var task = _service.AddTask(dto.Title, GetUserId(), dto.TaskDate);
+        return Ok(task);
     }
 
     [HttpPut("{id}")]

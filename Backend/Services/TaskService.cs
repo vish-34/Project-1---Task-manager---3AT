@@ -7,18 +7,20 @@ public class TaskService
         _context = context;
     }
 
-    public List <TaskItem> GetTasks(int userId)
+    public List <TaskItem> GetTasks(int userId, DateTime date)
     {
-        return _context.Tasks.Where(t => t.UserId == userId).ToList();
+        return _context.Tasks
+        .Where(t => t.UserId == userId && t.TaskDate.Date == date.Date).ToList();
     }
 
-    public TaskItem AddTask(string title , int userId)
+    public TaskItem AddTask(string title , int userId, DateTime date)
     {
         var task = new TaskItem
         {
             Title = title,
             IsCompleted = false,
-            UserId = userId
+            UserId = userId,
+            TaskDate = date
         };
 
         _context.Tasks.Add(task);

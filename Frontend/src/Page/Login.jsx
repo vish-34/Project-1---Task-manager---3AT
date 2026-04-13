@@ -20,7 +20,7 @@ export default function Login() {
       setErrorMessage("");
       const res = await API.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/date-selector");
     } catch {
       setErrorMessage("Invalid credentials. Please check your details.");
     } finally {

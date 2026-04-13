@@ -3,6 +3,16 @@ import { useNavigate } from "react-router-dom";
 import API from "../Api/axios";
 import TaskList from "../components/TaskList";
 
+const STORAGE_KEY = "selectedTaskDate";
+
+const formatDisplayDate = (value) =>
+  new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
+
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
@@ -10,11 +20,19 @@ export default function Dashboard() {
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const navigate = useNavigate();
+  const selectedDate = localStorage.getItem(STORAGE_KEY);
 
   const fetchTasks = async () => {
+    if (!selectedDate) {
+      navigate("/date-selector");
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const res = await API.get("/task");
+      const res = await API.get("/task", {
+        params: { date: selectedDate },
+      });
       setTasks(res.data);
       setStatusMessage("");
     } catch {
@@ -36,7 +54,10 @@ export default function Dashboard() {
 
     try {
       setIsSaving(true);
-      await API.post("/task", { title: title.trim() });
+      await API.post("/task", {
+        title: title.trim(),
+        taskDate: selectedDate,
+      });
       setTitle("");
       setStatusMessage("Task added successfully.");
       await fetchTasks();
@@ -69,6 +90,7 @@ export default function Dashboard() {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem(STORAGE_KEY);
     navigate("/");
   };
 
@@ -91,6 +113,9 @@ export default function Dashboard() {
               <div className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
                 TaskPilot Workspace
               </div>
+              <div className="mt-4 inline-flex items-center rounded-full border border-sky-100 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">
+                Date: {selectedDate ? formatDisplayDate(selectedDate) : "Not selected"}
+              </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
                 Command your day with a sharper task dashboard.
               </h1>
@@ -100,9 +125,17 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <button onClick={logout} className="secondary-button self-start">
-              Sign out
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => navigate("/date-selector")}
+                className="secondary-button self-start"
+              >
+                Change Date
+              </button>
+              <button onClick={logout} className="secondary-button self-start">
+                Sign out
+              </button>
+            </div>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

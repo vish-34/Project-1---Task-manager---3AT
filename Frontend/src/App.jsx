@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Dashboard from "./Page/Dashboard";
+import DateSelector from "./Page/DateSelector";
 import Login from "./Page/Login";
 
 function PrivateRoute({ children }) {
@@ -11,6 +12,14 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route
+        path="/date-selector"
+        element={
+          <PrivateRoute>
+            <DateSelector />
+          </PrivateRoute>
+        }
+      />
       <Route
         path="/dashboard"
         element={
